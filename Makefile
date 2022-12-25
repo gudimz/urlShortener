@@ -1,8 +1,8 @@
 
 
 build:
-		go build -o urlShortener -v ./cmd/main.go
+		go build -o urlShortener -v ./cmd/api/main.go
 run:
-		go run ./cmd/main.go
+		go run ./cmd/api/main.go
 clean:
 		rm -rf ./urlShortener
