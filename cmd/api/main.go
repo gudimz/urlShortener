@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+	"github.com/gudimz/urlShortener/internal/config"
 	"github.com/gudimz/urlShortener/internal/shorten"
 	"github.com/gudimz/urlShortener/pkg/logging"
 	"github.com/julienschmidt/httprouter"
@@ -12,6 +14,7 @@ import (
 func main() {
 	var (
 		logger = logging.GetLogger()
+		cfg    = config.GetConfig()
 	)
 	logger.Infoln("Create router")
 	router := httprouter.New()
@@ -19,14 +22,14 @@ func main() {
 	handler := shorten.NewHandler(logger)
 	handler.Register(router)
 
-	run(router)
+	run(router, cfg)
 }
 
-func run(router *httprouter.Router) {
+func run(router *httprouter.Router, cfg *config.Config) {
 	var (
 		logger = logging.GetLogger()
 	)
-	listener, err := net.Listen("tcp", "127.0.0.1:9000")
+	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.Listen.Ip, cfg.Listen.Port))
 	if err != nil {
 		logger.Fatalln(err)
 	}
@@ -37,6 +40,6 @@ func run(router *httprouter.Router) {
 		ReadTimeout:  15 * time.Second,
 	}
 
-	logger.Infoln("Shorten listening port 127.0.0.0:9000")
+	logger.Infoln(fmt.Sprintf("Shorten listening port %s:%s", cfg.Listen.Ip, cfg.Listen.Port))
 	logger.Fatalln(server.Serve(listener))
 }

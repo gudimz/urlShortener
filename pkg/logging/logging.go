@@ -58,13 +58,13 @@ func init() {
 	})
 
 	// create dir with logs
-	err := os.MkdirAll("logs", 0644)
+	err := os.MkdirAll("logs", 0750)
 	if err != nil && !os.IsExist(err) {
 		panic(err)
 	}
 
 	// create logfile
-	logFile, err := os.OpenFile("logs/log.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0640)
+	logFile, err := os.OpenFile("logs/log.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil && !os.IsExist(err) {
 		panic(err)
 	}
