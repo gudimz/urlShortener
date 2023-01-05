@@ -6,11 +6,22 @@ import (
 	"sync"
 )
 
+type ListenConfig struct {
+	Ip   string `yaml:"ip" env-default:"127.0.0.1"`
+	Port string `yaml:"port" env-default:"8080"`
+}
+
+type PostgresConfig struct {
+	Username string `yaml:"username" env-default:"postgres"`
+	Password string `yaml:"password" env-default:"postgres"`
+	Host     string `yaml:"host" env-default:"localhost"`
+	Port     string `yaml:"port" env-default:"5432"`
+	DbName   string `yaml:"db_name" env-default:"url_shorten"`
+}
+
 type Config struct {
-	Listen struct {
-		Ip   string `yaml:"ip" env-default:"127.0.0.1"`
-		Port string `yaml:"port" env-default:"8080"`
-	} `yaml:"listen"`
+	Listen   ListenConfig   `yaml:"listen"`
+	Postgres PostgresConfig `yaml:"postgres"`
 }
 
 var (
