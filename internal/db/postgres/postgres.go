@@ -27,5 +27,5 @@ func NewClient(ctx context.Context, pc config.PostgresConfig) (*pgxpool.Pool, er
 	if err != nil {
 		return nil, err
 	}
-	return pool, err
+	return pool, nil
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/gudimz/urlShortener/internal/config"
 	"github.com/gudimz/urlShortener/internal/db/postgres"
 	"github.com/gudimz/urlShortener/internal/shorten"
+	shorten2 "github.com/gudimz/urlShortener/internal/storage/shorten"
 	"github.com/gudimz/urlShortener/pkg/logging"
 	"github.com/julienschmidt/httprouter"
 	"net"
@@ -20,15 +21,16 @@ func main() {
 		router = httprouter.New()
 	)
 
-	handler := shorten.NewHandler(logger)
-	handler.Register(router)
-
 	logger.Infoln("Trying to connect to db...")
 	dbPool, err := postgres.NewClient(context.Background(), cfg.Postgres)
 	if err != nil {
 		logger.Fatalln(err)
 	}
 	defer dbPool.Close()
+
+	storage := shorten2.NewStorage(dbPool, logger)
+	handler := shorten.NewHandler(logger, storage)
+	handler.Register(router)
 
 	run(router, cfg)
 }
