@@ -13,14 +13,14 @@ const (
 )
 
 type handler struct {
-	logger  *logging.Logger
-	storage Storage
+	logger    *logging.Logger
+	shortener *Service
 }
 
-func NewHandler(logger *logging.Logger, storage Storage) handlers.Handler {
+func NewHandler(shortener *Service, logger *logging.Logger) handlers.Handler {
 	return &handler{
-		logger:  logger,
-		storage: storage,
+		logger:    logger,
+		shortener: shortener,
 	}
 }
 

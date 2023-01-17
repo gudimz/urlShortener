@@ -15,10 +15,11 @@ import (
 )
 
 func main() {
+
+	const pathToConf = "config.yml"
 	var (
 		logger = logging.GetLogger()
-		cfg    = config.GetConfig()
-		router = httprouter.New()
+		cfg    = config.GetConfig(pathToConf)
 	)
 
 	logger.Infoln("Trying to connect to db...")
@@ -28,10 +29,14 @@ func main() {
 	}
 	defer dbPool.Close()
 
-	storage := shorten2.NewStorage(dbPool, logger)
-	handler := shorten.NewHandler(logger, storage)
-	handler.Register(router)
+	var (
+		storage = shorten2.NewStorage(dbPool, logger)
+		service = shorten.NewService(storage)
+		handler = shorten.NewHandler(service, logger)
+		router  = httprouter.New()
+	)
 
+	handler.Register(router)
 	run(router, cfg)
 }
 

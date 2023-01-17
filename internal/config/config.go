@@ -29,9 +29,7 @@ var (
 	once     sync.Once
 )
 
-const pathToConf = "config.yml"
-
-func GetConfig() *Config {
+func GetConfig(pathToConf string) *Config {
 	once.Do(func() {
 		logger := logging.GetLogger()
 		logger.Infoln("reading config.yml")
