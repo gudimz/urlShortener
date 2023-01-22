@@ -10,7 +10,7 @@ import (
 type Storage interface {
 	CreateShorten(ctx context.Context, ms model.Shorten) error
 	GetShorten(ctx context.Context, shortUrl string) (*model.Shorten, error)
-	DeleteShorten(ctx context.Context, shortUrl string) error
+	DeleteShorten(ctx context.Context, shortUrl string) (int64, error)
 	UpdateShorten(ctx context.Context, shortUrl string) error
 }
 
@@ -27,7 +27,7 @@ func NewService(storage Storage) *Service {
 func (s *Service) CreateShorten(ctx context.Context, input model.InputShorten) (*model.Shorten, error) {
 	var (
 		id       = uuid.New().ID()
-		shortUrl = input.CustomUrl.OrElse(GenerateShortenUrl(id))
+		shortUrl = input.ShortenUrl.OrElse(GenerateShortenUrl(id))
 	)
 
 	shorten := model.Shorten{
@@ -68,6 +68,6 @@ func (s *Service) Redirect(ctx context.Context, shortUrl string) (string, error)
 	return shorten.OriginUrl, nil
 }
 
-func (s *Service) DeleteShorten(ctx context.Context, shortUrl string) error {
+func (s *Service) DeleteShorten(ctx context.Context, shortUrl string) (int64, error) {
 	return s.storage.DeleteShorten(ctx, shortUrl)
 }

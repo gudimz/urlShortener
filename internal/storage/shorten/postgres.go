@@ -28,7 +28,7 @@ const (
 	queryToUpdateByShortUrl = `
 						UPDATE shorten_urls
 							SET visits = visits + 1, date_updated = $1
-						WHERE id = $2
+						WHERE short_url = $2
 	`
 )
 
@@ -84,15 +84,16 @@ func (p *storage) GetShorten(ctx context.Context, shortUrl string) (*model.Short
 	return modelFromDbShorten(dbShorten), nil
 }
 
-func (p *storage) DeleteShorten(ctx context.Context, shortUrl string) error {
+func (p *storage) DeleteShorten(ctx context.Context, shortUrl string) (int64, error) {
 	q := queryToDeleteByShortUrl
 	p.logger.Trace(fmt.Sprintf("SQL Query: %s", queryForLogger(q)))
-	_, err := p.db.Exec(ctx, q, shortUrl)
+	res, err := p.db.Exec(ctx, q, shortUrl)
 	if err != nil {
 		p.logger.Error(err)
-		return err
+		return 0, err
 	}
-	return nil
+	count := res.RowsAffected()
+	return count, nil
 }
 
 func (p *storage) UpdateShorten(ctx context.Context, shortUrl string) error {

@@ -14,6 +14,6 @@ type Shorten struct {
 }
 
 type InputShorten struct {
-	CustomUrl mo.Option[string]
-	OriginUrl string
+	ShortenUrl mo.Option[string]
+	OriginUrl  string
 }

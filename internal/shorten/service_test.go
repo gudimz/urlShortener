@@ -9,6 +9,7 @@ import (
 	"github.com/gudimz/urlShortener/pkg/logging"
 	"github.com/samber/mo"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"testing"
 )
 
@@ -51,8 +52,8 @@ func Test_CreateShortenUrl(t *testing.T) {
 	t.Run("Create new short url with custom short url", func(t *testing.T) {
 		var (
 			inputShorten = model.InputShorten{
-				CustomUrl: mo.Some("google"),
-				OriginUrl: "https://google.com/",
+				ShortenUrl: mo.Some("google"),
+				OriginUrl:  "https://google.com/",
 			}
 		)
 
@@ -67,11 +68,19 @@ func Test_CreateShortenUrl(t *testing.T) {
 
 	t.Run("Delete short url random and custom", func(t *testing.T) {
 
-		errGen := service.DeleteShorten(context.Background(), generateShorten)
+		count, errGen := service.DeleteShorten(context.Background(), generateShorten)
 		assert.NoError(t, errGen)
+		assert.NotZero(t, count)
 
-		errCustom := service.DeleteShorten(context.Background(), customShorten)
+		count, errCustom := service.DeleteShorten(context.Background(), customShorten)
 		assert.NoError(t, errCustom)
+		assert.NotZero(t, count)
+
+		// delete dir with logs
+		err := os.RemoveAll("logs")
+		if err != nil && !os.IsExist(err) {
+			panic(err)
+		}
 	})
 
 }

@@ -5,13 +5,11 @@ import (
 	"fmt"
 	"github.com/gudimz/urlShortener/internal/config"
 	"github.com/gudimz/urlShortener/internal/db/postgres"
+	"github.com/gudimz/urlShortener/internal/server"
 	"github.com/gudimz/urlShortener/internal/shorten"
 	shorten2 "github.com/gudimz/urlShortener/internal/storage/shorten"
 	"github.com/gudimz/urlShortener/pkg/logging"
-	"github.com/julienschmidt/httprouter"
-	"net"
 	"net/http"
-	"time"
 )
 
 func main() {
@@ -30,31 +28,21 @@ func main() {
 	defer dbPool.Close()
 
 	var (
-		storage = shorten2.NewStorage(dbPool, logger)
-		service = shorten.NewService(storage)
-		handler = shorten.NewHandler(service, logger)
-		router  = httprouter.New()
+		storage   = shorten2.NewStorage(dbPool, logger)
+		shortener = shorten.NewService(storage)
+		srv       = server.NewServer(shortener, logger)
 	)
 
-	handler.Register(router)
-	run(router, cfg)
+	run(srv, cfg)
 }
 
-func run(router *httprouter.Router, cfg *config.Config) {
+func run(srv *server.Server, cfg *config.Config) {
 	var (
 		logger = logging.GetLogger()
 	)
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%s", cfg.Listen.Ip, cfg.Listen.Port))
+	logger.Infoln(fmt.Sprintf("Shorten listening port %s:%s", cfg.Server.Ip, cfg.Server.Port))
+	err := http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.Server.Ip, cfg.Server.Port), srv)
 	if err != nil {
-		logger.Fatalln(err)
+		logger.Fatalf("error running server: %v", err)
 	}
-
-	server := &http.Server{
-		Handler:      router,
-		WriteTimeout: 15 * time.Second,
-		ReadTimeout:  15 * time.Second,
-	}
-
-	logger.Infoln(fmt.Sprintf("Shorten listening port %s:%s", cfg.Listen.Ip, cfg.Listen.Port))
-	logger.Fatalln(server.Serve(listener))
 }
