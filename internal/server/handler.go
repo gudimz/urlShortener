@@ -14,8 +14,6 @@ import (
 	"strings"
 )
 
-const pathToConf = "config.yml"
-
 type handler struct {
 	logger    *logging.Logger
 	shortener *shorten.Service
@@ -67,7 +65,12 @@ func (h *handler) CreateShorten(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("can't create short url \"%v\"", input.ShortenUrl))
 	}
-	message := fmt.Sprintf("%v/%v", config.GetConfig(pathToConf).Server.BaseUrl, shortener.ShortUrl)
+	message := fmt.Sprintf("%v://%v:%v/%v",
+		config.GetConfig().Server.Protocol,
+		config.GetConfig().Server.Host,
+		config.GetConfig().Server.Port,
+		shortener.ShortUrl,
+	)
 	return ctx.JSON(http.StatusOK, response{Message: message})
 }
 

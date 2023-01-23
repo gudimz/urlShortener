@@ -44,6 +44,7 @@ func (s *Server) RegisterRoutes() {
 	handler := NewHandler(s.shorten, s.logger)
 
 	s.e.GET("/:short_url", handler.Redirect)
+
 	g := s.e.Group("/api/v1")
 	g.GET("/:short_url", handler.GetShorten)
 	g.POST("/create", handler.CreateShorten)

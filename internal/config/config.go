@@ -6,10 +6,12 @@ import (
 	"sync"
 )
 
+const pathToConfig = "config.yml"
+
 type ServerConfig struct {
-	Ip      string `yaml:"ip" env-default:"127.0.0.1"`
-	Port    string `yaml:"port" env-default:"8080"`
-	BaseUrl string `yaml:"base_url" env-default:"http://localhost:9000"`
+	Host     string `yaml:"host" env-default:"localhost"`
+	Port     string `yaml:"port" env-default:"8080"`
+	Protocol string `yaml:"protocol" env-default:"http"`
 }
 
 type PostgresConfig struct {
@@ -30,13 +32,13 @@ var (
 	once     sync.Once
 )
 
-func GetConfig(pathToConf string) *Config {
+func GetConfig() *Config {
 	once.Do(func() {
 		logger := logging.GetLogger()
 		logger.Infoln("reading config.yml")
 
 		instance = &Config{}
-		err := cleanenv.ReadConfig(pathToConf, instance)
+		err := cleanenv.ReadConfig(pathToConfig, instance)
 		if err != nil {
 			description, _ := cleanenv.GetDescription(instance, nil)
 			logger.Infoln(description)

@@ -13,11 +13,14 @@ import (
 	"testing"
 )
 
-const pathToConf = "../../config.yml"
-
 func Test_CreateShortenUrl(t *testing.T) {
+	//change directory for read config
+	if err := os.Chdir("../../"); err != nil {
+		panic(err)
+	}
+
 	var (
-		cfg             = config.GetConfig(pathToConf)
+		cfg             = config.GetConfig()
 		logger          = logging.GetLogger()
 		generateShorten = ""
 		customShorten   = ""

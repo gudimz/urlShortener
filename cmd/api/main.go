@@ -14,10 +14,9 @@ import (
 
 func main() {
 
-	const pathToConf = "config.yml"
 	var (
 		logger = logging.GetLogger()
-		cfg    = config.GetConfig(pathToConf)
+		cfg    = config.GetConfig()
 	)
 
 	logger.Infoln("Trying to connect to db...")
@@ -40,8 +39,8 @@ func run(srv *server.Server, cfg *config.Config) {
 	var (
 		logger = logging.GetLogger()
 	)
-	logger.Infoln(fmt.Sprintf("Shorten listening port %s:%s", cfg.Server.Ip, cfg.Server.Port))
-	err := http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.Server.Ip, cfg.Server.Port), srv)
+	logger.Infoln(fmt.Sprintf("Shorten listening port %s:%s", cfg.Server.Host, cfg.Server.Port))
+	err := http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.Server.Host, cfg.Server.Port), srv)
 	if err != nil {
 		logger.Fatalf("error running server: %v", err)
 	}
