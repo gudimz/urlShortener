@@ -11,7 +11,7 @@ type testCase struct {
 	log      string
 }
 
-func Test_GenerateShortenUrl(t *testing.T) {
+func TestGenerateShortenUrl(t *testing.T) {
 
 	t.Run("Returned short url", func(t *testing.T) {
 		testCases := []testCase{

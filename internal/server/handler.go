@@ -8,6 +8,7 @@ import (
 	"github.com/gudimz/urlShortener/internal/shorten"
 	"github.com/gudimz/urlShortener/pkg/logging"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
 	"github.com/samber/mo"
 	"net/http"
@@ -27,8 +28,8 @@ func NewHandler(shortener *shorten.Service, logger *logging.Logger) *handler {
 }
 
 type request struct {
-	Url     string `json:"url" validate:"required,url"`
-	Shorten string `json:"shorten,omitempty" validate:"omitempty,alphanum"`
+	Url      string `json:"url" validate:"required,url"`
+	ShortUrl string `json:"short_url,omitempty" validate:"omitempty,alphanum"`
 }
 
 type response struct {
@@ -45,8 +46,8 @@ func (h *handler) CreateShorten(ctx echo.Context) error {
 		return err
 	}
 	shortenUrl := mo.None[string]()
-	if strings.TrimSpace(req.Shorten) != "" {
-		shortenUrl = mo.Some(req.Shorten)
+	if strings.TrimSpace(req.ShortUrl) != "" {
+		shortenUrl = mo.Some(req.ShortUrl)
 	}
 
 	input := model.InputShorten{
@@ -54,12 +55,14 @@ func (h *handler) CreateShorten(ctx echo.Context) error {
 		OriginUrl:  req.Url,
 	}
 
-	h.logger.Infof("create shorten for short url %q", input.ShortenUrl)
+	h.logger.Infof("create shorten for short url \"%v\"", input.ShortenUrl)
 	shortener, err := h.shortener.CreateShorten(ctx.Request().Context(), input)
 	if err != nil {
-		e := errors.New("UNIQUE constraint failed")
-		if errors.As(err, &e) {
-			return echo.NewHTTPError(http.StatusConflict, "short url already exist")
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) {
+			if strings.Compare(pgErr.Code, "23505") == 0 {
+				return echo.NewHTTPError(http.StatusConflict, "short url already exist")
+			}
 		}
 		h.logger.Errorf("error creating shorten: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError,

@@ -10,10 +10,16 @@ import (
 	"github.com/samber/mo"
 	"github.com/stretchr/testify/assert"
 	"os"
+	"path/filepath"
 	"testing"
 )
 
-func Test_CreateShortenUrl(t *testing.T) {
+func TestService(t *testing.T) {
+	// save current path
+	testDir, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
 	//change directory for read config
 	if err := os.Chdir("../../"); err != nil {
 		panic(err)
@@ -78,12 +84,12 @@ func Test_CreateShortenUrl(t *testing.T) {
 		count, errCustom := service.DeleteShorten(context.Background(), customShorten)
 		assert.NoError(t, errCustom)
 		assert.NotZero(t, count)
-
-		// delete dir with logs
-		err := os.RemoveAll("logs")
-		if err != nil && !os.IsExist(err) {
-			panic(err)
-		}
 	})
+
+	// delete dir with logs
+	err = os.RemoveAll(filepath.Join(testDir, "logs"))
+	if err != nil && !os.IsExist(err) {
+		panic(err)
+	}
 
 }
