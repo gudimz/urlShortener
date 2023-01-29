@@ -1,10 +1,10 @@
 FROM golang:1.19
 
-COPY . go/src/app
+COPY . src/app
 
-WORKDIR go/src/app
+WORKDIR src/app
 
-RUN go build -o urlShortener ./cmd/api/main.go
+RUN make build
 
 RUN chmod +x ./wait-for-it.sh
 
