@@ -9,9 +9,9 @@ import (
 const pathToConfig = "config.yml"
 
 type ServerConfig struct {
-	Host     string `yaml:"host" env-default:"localhost"`
-	Port     string `yaml:"port" env-default:"8080"`
-	Protocol string `yaml:"protocol" env-default:"http"`
+	Host    string `yaml:"host" env-default:"0.0.0.0"`
+	Port    string `yaml:"port" env-default:"8080"`
+	BaseUrl string `yaml:"base_url" env-default:"http://localhost"`
 }
 
 type PostgresConfig struct {

@@ -68,9 +68,8 @@ func (h *handler) CreateShorten(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("can't create short url \"%v\"", input.ShortenUrl))
 	}
-	message := fmt.Sprintf("%v://%v:%v/%v",
-		config.GetConfig().Server.Protocol,
-		config.GetConfig().Server.Host,
+	message := fmt.Sprintf("%v:%v/%v",
+		config.GetConfig().Server.BaseUrl,
 		config.GetConfig().Server.Port,
 		shortener.ShortUrl,
 	)
