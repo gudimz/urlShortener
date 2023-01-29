@@ -56,7 +56,7 @@ make build
 #run the application
 make run
 
-# test application into container
+#test application into container
 make test
 
 #stop the application
