@@ -8,7 +8,7 @@
 This is simple project for understanding how work with postgresql, docker in golang. It generates for an url a short url or uses 
 the custom short url sent in the request.
 ## REST API
-###Method POST
+### Method POST
 This method creates new short url.
 - path: `api/v1/create/`
 - body:
@@ -26,7 +26,7 @@ if you need to generate a short url - sent only the url
 }
 ```
 - code: `200`
-###Method GET
+### Method GET
 This method redirects to the original url or returns all short url information.
 - redirect:
   - path: `short_url`
@@ -44,11 +44,11 @@ This method redirects to the original url or returns all short url information.
 }
 ```
 - code: `200`
-###Method DELETE
+### Method DELETE
 This method delete short url info from database.
 - path: `api/v1/delete/short_url`
 - code: `204`
-##Usage
+## Usage
 ```shell
 #build docker image
 make build
