@@ -12,7 +12,7 @@ the custom short url sent in the request.
 This method creates new short url.
 - path: `api/v1/create/`
 - body:
-```yml
+```json
 {
     "url":"https://example.com",
     "short_url":"example"
@@ -20,7 +20,7 @@ This method creates new short url.
 ```
 if you need to generate a short url - sent only the url
 - return body:
-```yml
+```json
 {
   "message": "http://localhost:8080/example"
 }
@@ -28,13 +28,13 @@ if you need to generate a short url - sent only the url
 - code: `200`
 ### Method GET
 This method redirects to the original url or returns all short url information.
-- redirect:
+- **redirect:**
   - path: `short_url`
   - code: `301`
-- short url info:
+- **short url info:**
     - path: `api/v1/short_url`
     - return body:
-```yml
+```json
 {
   "short_url": "example",
   "origin_url": "https://example.com",
