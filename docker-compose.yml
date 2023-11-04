@@ -4,7 +4,7 @@ services:
   urlshortener:
     container_name: urlshortener
     build: ./
-    command: ["./wait-for-it.sh", "postgres:5432", "--timeout=5", "--", "./urlShortener"]
+    command: ["./scripts/wait-for-it.sh", "postgres:5432", "--timeout=5", "--", "./urlShortener"]
     ports:
       - "8080:8080"
     depends_on:
@@ -23,8 +23,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./internal/db/postgres/migration/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./internal/db/postgres/data:/var/lib/postgresql/data
+      - ./internal/app/repository/psql/migration/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./internal/app/repository/data:/var/lib/postgresql/data
     networks:
       - app_network
 

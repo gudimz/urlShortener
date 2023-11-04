@@ -1,12 +1,15 @@
-package config
+package ds
 
 import (
-	"github.com/gudimz/urlShortener/pkg/logging"
-	"github.com/ilyakaznacheev/cleanenv"
+	"fmt"
 	"sync"
+
+	"github.com/ilyakaznacheev/cleanenv"
+
+	"github.com/gudimz/urlShortener/pkg/logging"
 )
 
-const pathToConfig = "config.yml"
+const pathToConfig = "configs/config.yml"
 
 type ServerConfig struct {
 	Host    string `yaml:"host" env-default:"0.0.0.0"`
@@ -35,8 +38,7 @@ var (
 func GetConfig() *Config {
 	once.Do(func() {
 		logger := logging.GetLogger()
-		logger.Infoln("reading config.yml")
-
+		logger.Infoln(fmt.Sprintf("reading %s", pathToConfig))
 		instance = &Config{}
 		err := cleanenv.ReadConfig(pathToConfig, instance)
 		if err != nil {

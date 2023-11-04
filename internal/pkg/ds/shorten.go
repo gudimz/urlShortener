@@ -1,8 +1,9 @@
-package model
+package ds
 
 import (
-	"github.com/samber/mo"
 	"time"
+
+	"github.com/samber/mo"
 )
 
 type Shorten struct {

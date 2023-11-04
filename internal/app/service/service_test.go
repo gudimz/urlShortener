@@ -1,17 +1,18 @@
-package shorten
+package service
 
 import (
 	"context"
-	"github.com/gudimz/urlShortener/internal/config"
-	"github.com/gudimz/urlShortener/internal/db/postgres"
-	"github.com/gudimz/urlShortener/internal/model"
-	shorten2 "github.com/gudimz/urlShortener/internal/storage/shorten"
-	"github.com/gudimz/urlShortener/pkg/logging"
-	"github.com/samber/mo"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/samber/mo"
+	"github.com/stretchr/testify/assert"
+
+	"github.com/gudimz/urlShortener/internal/app/repository/psql/shorten"
+	"github.com/gudimz/urlShortener/internal/pkg/ds"
+	"github.com/gudimz/urlShortener/pkg/logging"
+	"github.com/gudimz/urlShortener/pkg/postgres"
 )
 
 func TestService(t *testing.T) {
@@ -21,12 +22,12 @@ func TestService(t *testing.T) {
 		panic(err)
 	}
 	//change directory for read config
-	if err := os.Chdir("../../"); err != nil {
+	if err := os.Chdir("../../.."); err != nil {
 		panic(err)
 	}
 
 	var (
-		cfg             = config.GetConfig()
+		cfg             = ds.GetConfig()
 		logger          = logging.GetLogger()
 		generateShorten = ""
 		customShorten   = ""
@@ -39,13 +40,13 @@ func TestService(t *testing.T) {
 	defer dbPool.Close()
 
 	var (
-		storage = shorten2.NewStorage(dbPool, logger)
-		service = NewService(storage)
+		repository = shorten.NewRepository(dbPool, logger)
+		service    = NewService(repository)
 	)
 
 	t.Run("Create new short url with GenerateShortenUrl()", func(t *testing.T) {
 		var (
-			inputShorten = model.InputShorten{
+			inputShorten = ds.InputShorten{
 				OriginUrl: "https://youtube.com/",
 			}
 		)
@@ -60,7 +61,7 @@ func TestService(t *testing.T) {
 
 	t.Run("Create new short url with custom short url", func(t *testing.T) {
 		var (
-			inputShorten = model.InputShorten{
+			inputShorten = ds.InputShorten{
 				ShortenUrl: mo.Some("google"),
 				OriginUrl:  "https://google.com/",
 			}

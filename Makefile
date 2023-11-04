@@ -1,28 +1,28 @@
-# COLORS
-green=$(shell echo "\033[32m")
-red=$(shell echo "\033[0;31m")
-yellow=$(shell echo "\033[0;33m")
-end=$(shell echo "\033[0m")
+PROJECT_DIR = $(CURDIR)
+PROJECT_BIN = $(PROJECT_DIR)/bin
+BIN_NAME = url-shortener-api
+RUN_TYPE = api
 
+.PHONY: build
 build:
-		@echo "$(yellow)building app...$(end)"
-		go build -o urlShortener -v ./cmd/api/main.go
-		@echo "$(green)built successfully$(end)"
+	go build -o $(PROJECT_BIN)/$(BIN_NAME) -v ./cmd/$(RUN_TYPE)
+
+.PHONY: test
 test:
-		@echo "$(yellow)start testing shorten...$(end)"
-		go test ./internal/shorten/
-		@echo "$(green)tested successfully$(end)"
+	go test -v ./...
 
-		@echo "$(yellow)start testing server...$(end)"
-		go test ./internal/server/
-		@echo "$(green)tested successfully$(end)"
+.PHONY: docker
 docker:
-		docker-compose build
-run:
-		docker-compose up -d
-stop:
-		docker-compose down
-clean:
-		rm -rf ./urlShortener
+	docker-compose build
 
-.PHONY: build test docker run stop clean
+.PHONY: docker-run
+docker-run:
+	docker-compose up -d
+
+.PHONY: docker-stop
+stop:
+	docker-compose down
+
+.PHONY: clean
+clean:
+	rm -rf $(PROJECT_BIN)/$(BIN_NAME)

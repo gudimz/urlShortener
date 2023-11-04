@@ -1,15 +1,18 @@
-package shorten
+package service
 
 import (
 	"context"
+
 	"github.com/google/uuid"
-	"github.com/gudimz/urlShortener/internal/model"
+
 	"time"
+
+	"github.com/gudimz/urlShortener/internal/pkg/ds"
 )
 
 type Storage interface {
-	CreateShorten(ctx context.Context, ms model.Shorten) error
-	GetShorten(ctx context.Context, shortUrl string) (*model.Shorten, error)
+	CreateShorten(ctx context.Context, ms ds.Shorten) error
+	GetShorten(ctx context.Context, shortUrl string) (*ds.Shorten, error)
 	DeleteShorten(ctx context.Context, shortUrl string) (int64, error)
 	UpdateShorten(ctx context.Context, shortUrl string) error
 }
@@ -24,13 +27,13 @@ func NewService(storage Storage) *Service {
 	}
 }
 
-func (s *Service) CreateShorten(ctx context.Context, input model.InputShorten) (*model.Shorten, error) {
+func (s *Service) CreateShorten(ctx context.Context, input ds.InputShorten) (*ds.Shorten, error) {
 	var (
 		id       = uuid.New().ID()
 		shortUrl = input.ShortenUrl.OrElse(GenerateShortenUrl(id))
 	)
 
-	shorten := model.Shorten{
+	shorten := ds.Shorten{
 		ShortUrl:    shortUrl,
 		OriginUrl:   input.OriginUrl,
 		Visits:      0,
@@ -46,7 +49,7 @@ func (s *Service) CreateShorten(ctx context.Context, input model.InputShorten) (
 	return &shorten, nil
 }
 
-func (s *Service) GetShorten(ctx context.Context, shortUrl string) (*model.Shorten, error) {
+func (s *Service) GetShorten(ctx context.Context, shortUrl string) (*ds.Shorten, error) {
 	shorten, err := s.storage.GetShorten(ctx, shortUrl)
 	if err != nil {
 		return nil, err

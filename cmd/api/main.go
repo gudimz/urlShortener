@@ -3,20 +3,21 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/gudimz/urlShortener/internal/config"
-	"github.com/gudimz/urlShortener/internal/db/postgres"
-	"github.com/gudimz/urlShortener/internal/server"
-	"github.com/gudimz/urlShortener/internal/shorten"
-	shorten2 "github.com/gudimz/urlShortener/internal/storage/shorten"
-	"github.com/gudimz/urlShortener/pkg/logging"
 	"net/http"
+
+	shortenRepo "github.com/gudimz/urlShortener/internal/app/repository/psql/shorten"
+	"github.com/gudimz/urlShortener/internal/app/service"
+	"github.com/gudimz/urlShortener/internal/app/transport/rest/server"
+	"github.com/gudimz/urlShortener/internal/pkg/ds"
+	"github.com/gudimz/urlShortener/pkg/logging"
+	"github.com/gudimz/urlShortener/pkg/postgres"
 )
 
 func main() {
 
 	var (
 		logger = logging.GetLogger()
-		cfg    = config.GetConfig()
+		cfg    = ds.GetConfig()
 	)
 
 	logger.Infoln("Trying to connect to db...")
@@ -27,15 +28,15 @@ func main() {
 	defer dbPool.Close()
 
 	var (
-		storage   = shorten2.NewStorage(dbPool, logger)
-		shortener = shorten.NewService(storage)
-		srv       = server.NewServer(shortener, logger)
+		repository = shortenRepo.NewRepository(dbPool, logger)
+		shortener  = service.NewService(repository)
+		srv        = server.New(shortener, logger)
 	)
 
 	run(srv, cfg)
 }
 
-func run(srv *server.Server, cfg *config.Config) {
+func run(srv *server.Server, cfg *ds.Config) {
 	var (
 		logger = logging.GetLogger()
 	)

@@ -1,20 +1,24 @@
 package server
 
 import (
-	"github.com/gudimz/urlShortener/internal/shorten"
-	"github.com/gudimz/urlShortener/pkg/logging"
+	"net/http"
+
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"net/http"
+
+	"github.com/gudimz/urlShortener/internal/app/service"
+	"github.com/gudimz/urlShortener/internal/app/transport/rest"
+	"github.com/gudimz/urlShortener/internal/app/transport/rest/helper"
+	"github.com/gudimz/urlShortener/pkg/logging"
 )
 
 type Server struct {
 	e       *echo.Echo
 	logger  *logging.Logger
-	shorten *shorten.Service
+	shorten *service.Service
 }
 
-func NewServer(shorten *shorten.Service, logger *logging.Logger) *Server {
+func New(shorten *service.Service, logger *logging.Logger) *Server {
 	srv := &Server{
 		e:       echo.New(),
 		logger:  logger,
@@ -28,7 +32,7 @@ func NewServer(shorten *shorten.Service, logger *logging.Logger) *Server {
 
 func (s *Server) NewRouter() {
 	s.e.HideBanner = true
-	s.e.Validator = NewValidator()
+	s.e.Validator = helper.NewValidator()
 
 	s.e.Pre(middleware.RemoveTrailingSlash())
 	s.e.Use(middleware.RequestID())
@@ -41,7 +45,7 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (s *Server) RegisterRoutes() {
-	handler := NewHandler(s.shorten, s.logger)
+	handler := rest.NewHandler(s.shorten, s.logger)
 
 	s.e.GET("/:short_url", handler.Redirect)
 

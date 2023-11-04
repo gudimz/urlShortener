@@ -1,9 +1,10 @@
-package server
+package helper
 
 import (
+	"net/http"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
-	"net/http"
 )
 
 type Validator struct {

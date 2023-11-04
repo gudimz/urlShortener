@@ -1,8 +1,9 @@
-package shorten
+package service
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 type testCase struct {

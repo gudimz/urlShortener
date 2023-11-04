@@ -1,4 +1,4 @@
-FROM golang:1.19
+FROM golang:1.21
 
 COPY . src/app
 
@@ -6,7 +6,7 @@ WORKDIR src/app
 
 RUN make build
 
-RUN chmod +x ./wait-for-it.sh
+RUN chmod +x ./scripts/wait-for-it.sh
 
 EXPOSE 8080
 

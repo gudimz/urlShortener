@@ -1,22 +1,25 @@
-package server
+package rest
 
 import (
 	"context"
 	"encoding/json"
-	"github.com/gudimz/urlShortener/internal/config"
-	"github.com/gudimz/urlShortener/internal/db/postgres"
-	"github.com/gudimz/urlShortener/internal/shorten"
-	shorten2 "github.com/gudimz/urlShortener/internal/storage/shorten"
-	"github.com/gudimz/urlShortener/pkg/logging"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+
+	shortenRepo "github.com/gudimz/urlShortener/internal/app/repository/psql/shorten"
+	"github.com/gudimz/urlShortener/internal/app/service"
+	"github.com/gudimz/urlShortener/internal/app/transport/rest/helper"
+	"github.com/gudimz/urlShortener/internal/pkg/ds"
+	"github.com/gudimz/urlShortener/pkg/logging"
+	"github.com/gudimz/urlShortener/pkg/postgres"
 )
 
 var resp struct {
@@ -30,12 +33,12 @@ func TestHandler(t *testing.T) {
 		panic(err)
 	}
 	//change directory for read config
-	if err := os.Chdir("../../"); err != nil {
+	if err := os.Chdir("../../../.."); err != nil {
 		panic(err)
 	}
 
 	var (
-		cfg    = config.GetConfig()
+		cfg    = ds.GetConfig()
 		logger = logging.GetLogger()
 	)
 
@@ -46,8 +49,8 @@ func TestHandler(t *testing.T) {
 	defer dbPool.Close()
 
 	var (
-		storage   = shorten2.NewStorage(dbPool, logger)
-		shortener = shorten.NewService(storage)
+		repository = shortenRepo.NewRepository(dbPool, logger)
+		shortener  = service.NewService(repository)
 	)
 
 	t.Run("Create new short url for a given URL", func(t *testing.T) {
@@ -59,7 +62,7 @@ func TestHandler(t *testing.T) {
 			ctx      = e.NewContext(request, recorder)
 			handler  = NewHandler(shortener, logger)
 		)
-		e.Validator = NewValidator()
+		e.Validator = helper.NewValidator()
 		request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 		require.NoError(t, handler.CreateShorten(ctx))
@@ -78,7 +81,7 @@ func TestHandler(t *testing.T) {
 			ctx      = e.NewContext(request, recorder)
 			handler  = NewHandler(shortener, logger)
 		)
-		e.Validator = NewValidator()
+		e.Validator = helper.NewValidator()
 		request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 		require.NoError(t, handler.CreateShorten(ctx))
@@ -153,7 +156,7 @@ func TestHandler(t *testing.T) {
 			ctx      = e.NewContext(request, recorder)
 			handler  = NewHandler(shortener, logger)
 		)
-		e.Validator = NewValidator()
+		e.Validator = helper.NewValidator()
 		ctx.SetPath("/delete/:short_url")
 		ctx.SetParamNames("short_url")
 		ctx.SetParamValues(shortUrlFirst)

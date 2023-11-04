@@ -3,10 +3,12 @@ package postgres
 import (
 	"context"
 	"fmt"
-	"github.com/gudimz/urlShortener/internal/config"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/gudimz/urlShortener/internal/pkg/ds"
 )
 
 type Client interface {
@@ -16,7 +18,7 @@ type Client interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 }
 
-func NewClient(ctx context.Context, pc config.PostgresConfig) (*pgxpool.Pool, error) {
+func NewClient(ctx context.Context, pc ds.PostgresConfig) (*pgxpool.Pool, error) {
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		pc.Username,
 		pc.Password,

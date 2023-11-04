@@ -1,26 +1,27 @@
-package server
+package rest
 
 import (
 	"errors"
 	"fmt"
-	"github.com/gudimz/urlShortener/internal/config"
-	"github.com/gudimz/urlShortener/internal/model"
-	"github.com/gudimz/urlShortener/internal/shorten"
-	"github.com/gudimz/urlShortener/pkg/logging"
+	"net/http"
+	"strings"
+
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
 	"github.com/samber/mo"
-	"net/http"
-	"strings"
+
+	"github.com/gudimz/urlShortener/internal/app/service"
+	"github.com/gudimz/urlShortener/internal/pkg/ds"
+	"github.com/gudimz/urlShortener/pkg/logging"
 )
 
 type handler struct {
 	logger    *logging.Logger
-	shortener *shorten.Service
+	shortener *service.Service
 }
 
-func NewHandler(shortener *shorten.Service, logger *logging.Logger) *handler {
+func NewHandler(shortener *service.Service, logger *logging.Logger) *handler {
 	return &handler{
 		logger:    logger,
 		shortener: shortener,
@@ -50,7 +51,7 @@ func (h *handler) CreateShorten(ctx echo.Context) error {
 		shortenUrl = mo.Some(req.ShortUrl)
 	}
 
-	input := model.InputShorten{
+	input := ds.InputShorten{
 		ShortenUrl: shortenUrl,
 		OriginUrl:  req.Url,
 	}
@@ -69,8 +70,8 @@ func (h *handler) CreateShorten(ctx echo.Context) error {
 			fmt.Sprintf("can't create short url \"%v\"", input.ShortenUrl))
 	}
 	message := fmt.Sprintf("%v:%v/%v",
-		config.GetConfig().Server.BaseUrl,
-		config.GetConfig().Server.Port,
+		ds.GetConfig().Server.BaseUrl,
+		ds.GetConfig().Server.Port,
 		shortener.ShortUrl,
 	)
 	return ctx.JSON(http.StatusOK, response{Message: message})
