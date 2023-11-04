@@ -11,7 +11,7 @@ import (
 
 	"github.com/gudimz/urlShortener/internal/app/repository/psql/shorten"
 	"github.com/gudimz/urlShortener/internal/pkg/ds"
-	"github.com/gudimz/urlShortener/pkg/logging"
+	"github.com/gudimz/urlShortener/pkg/logger"
 	"github.com/gudimz/urlShortener/pkg/postgres"
 )
 
@@ -28,11 +28,12 @@ func TestService(t *testing.T) {
 
 	var (
 		cfg             = ds.GetConfig()
-		logger          = logging.GetLogger()
 		generateShorten = ""
 		customShorten   = ""
 	)
-
+	log := logger.New(&logger.Config{
+		LogLevel: "debug",
+	})
 	dbPool, err := postgres.NewClient(context.Background(), cfg.Postgres)
 	if err != nil {
 		t.Fatal(err)
@@ -40,7 +41,7 @@ func TestService(t *testing.T) {
 	defer dbPool.Close()
 
 	var (
-		repository = shorten.NewRepository(dbPool, logger)
+		repository = shorten.NewRepository(dbPool, log)
 		service    = NewService(repository)
 	)
 

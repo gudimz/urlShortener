@@ -4,7 +4,7 @@ services:
   urlshortener:
     container_name: urlshortener
     build: ./
-    command: ["./scripts/wait-for-it.sh", "postgres:5432", "--timeout=5", "--", "./urlShortener"]
+    command: ["./scripts/wait-for-it.sh", "postgres:5432", "--timeout=5", "--", "./url-shortener"]
     ports:
       - "8080:8080"
     depends_on:

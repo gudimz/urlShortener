@@ -8,19 +8,19 @@ import (
 
 	"github.com/gudimz/urlShortener/internal/app/service"
 	"github.com/gudimz/urlShortener/internal/app/transport/rest/handler"
-	"github.com/gudimz/urlShortener/pkg/logging"
+	"github.com/gudimz/urlShortener/pkg/logger"
 )
 
 type Server struct {
 	e       *echo.Echo
-	logger  *logging.Logger
+	log     *logger.Log
 	shorten *service.Service
 }
 
-func New(shorten *service.Service, logger *logging.Logger) *Server {
+func New(shorten *service.Service, log *logger.Log) *Server {
 	srv := &Server{
 		e:       echo.New(),
-		logger:  logger,
+		log:     log,
 		shorten: shorten,
 	}
 	srv.NewRouter()
@@ -44,7 +44,7 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (s *Server) RegisterRoutes() {
-	h := handler.New(s.shorten, s.logger)
+	h := handler.New(s.shorten, s.log)
 
 	s.e.GET("/:short_url", h.Redirect)
 

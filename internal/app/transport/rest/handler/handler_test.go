@@ -17,7 +17,7 @@ import (
 	shortenRepo "github.com/gudimz/urlShortener/internal/app/repository/psql/shorten"
 	"github.com/gudimz/urlShortener/internal/app/service"
 	"github.com/gudimz/urlShortener/internal/pkg/ds"
-	"github.com/gudimz/urlShortener/pkg/logging"
+	"github.com/gudimz/urlShortener/pkg/logger"
 	"github.com/gudimz/urlShortener/pkg/postgres"
 )
 
@@ -37,9 +37,12 @@ func TestHandler(t *testing.T) {
 	}
 
 	var (
-		cfg    = ds.GetConfig()
-		logger = logging.GetLogger()
+		cfg = ds.GetConfig()
 	)
+
+	log := logger.New(&logger.Config{
+		LogLevel: "debug",
+	})
 
 	dbPool, err := postgres.NewClient(context.Background(), cfg.Postgres)
 	if err != nil {
@@ -48,7 +51,7 @@ func TestHandler(t *testing.T) {
 	defer dbPool.Close()
 
 	var (
-		repository = shortenRepo.NewRepository(dbPool, logger)
+		repository = shortenRepo.NewRepository(dbPool, log)
 		shortener  = service.NewService(repository)
 	)
 
@@ -59,7 +62,7 @@ func TestHandler(t *testing.T) {
 			request  = httptest.NewRequest(http.MethodPost, "/create", strings.NewReader(body))
 			e        = echo.New()
 			ctx      = e.NewContext(request, recorder)
-			handler  = New(shortener, logger)
+			handler  = New(shortener, log)
 		)
 		e.Validator = NewValidator()
 		request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -78,7 +81,7 @@ func TestHandler(t *testing.T) {
 			request  = httptest.NewRequest(http.MethodPost, "/create", strings.NewReader(body))
 			e        = echo.New()
 			ctx      = e.NewContext(request, recorder)
-			handler  = New(shortener, logger)
+			handler  = New(shortener, log)
 		)
 		e.Validator = NewValidator()
 		request.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
@@ -110,7 +113,7 @@ func TestHandler(t *testing.T) {
 			request  = httptest.NewRequest(http.MethodGet, "/"+shortUrl, nil)
 			e        = echo.New()
 			ctx      = e.NewContext(request, recorder)
-			handler  = New(shortener, logger)
+			handler  = New(shortener, log)
 		)
 
 		ctx.SetPath("/:short_url")
@@ -131,7 +134,7 @@ func TestHandler(t *testing.T) {
 			request  = httptest.NewRequest(http.MethodGet, "/"+shortUrl, nil)
 			e        = echo.New()
 			ctx      = e.NewContext(request, recorder)
-			handler  = New(shortener, logger)
+			handler  = New(shortener, log)
 		)
 
 		ctx.SetPath("/:short_url")
@@ -153,7 +156,7 @@ func TestHandler(t *testing.T) {
 			request  = httptest.NewRequest(http.MethodDelete, "/delete/", nil)
 			e        = echo.New()
 			ctx      = e.NewContext(request, recorder)
-			handler  = New(shortener, logger)
+			handler  = New(shortener, log)
 		)
 		e.Validator = NewValidator()
 		ctx.SetPath("/delete/:short_url")

@@ -1,15 +1,11 @@
 package ds
 
 import (
-	"fmt"
-	"sync"
+	"log"
+	"os"
 
 	"github.com/ilyakaznacheev/cleanenv"
-
-	"github.com/gudimz/urlShortener/pkg/logging"
 )
-
-const pathToConfig = "configs/config.yml"
 
 type ServerConfig struct {
 	Host    string `yaml:"host" env-default:"0.0.0.0"`
@@ -30,22 +26,22 @@ type Config struct {
 	Postgres PostgresConfig `yaml:"postgres"`
 }
 
-var (
-	instance *Config
-	once     sync.Once
+const (
+	configPathEnv = "CONFIG_PATH"
 )
 
 func GetConfig() *Config {
-	once.Do(func() {
-		logger := logging.GetLogger()
-		logger.Infoln(fmt.Sprintf("reading %s", pathToConfig))
-		instance = &Config{}
-		err := cleanenv.ReadConfig(pathToConfig, instance)
-		if err != nil {
-			description, _ := cleanenv.GetDescription(instance, nil)
-			logger.Infoln(description)
-			logger.Fatalln(err)
-		}
-	})
-	return instance
+	configPath := os.Getenv(configPathEnv)
+	if configPath == "" {
+		log.Fatal("env CONFIG_PATH not set")
+	}
+
+	log.Printf("reading config file: %s", configPath)
+	config := Config{}
+	err := cleanenv.ReadConfig(configPath, &config)
+	if err != nil {
+		log.Fatalf("failed to read config file: %v", err)
+	}
+
+	return &config
 }
