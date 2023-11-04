@@ -44,12 +44,12 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (s *Server) RegisterRoutes() {
-	handler := handler.New(s.shorten, s.logger)
+	h := handler.New(s.shorten, s.logger)
 
-	s.e.GET("/:short_url", handler.Redirect)
+	s.e.GET("/:short_url", h.Redirect)
 
 	g := s.e.Group("/api/v1")
-	g.GET("/:short_url", handler.GetShorten)
-	g.POST("/create", handler.CreateShorten)
-	g.DELETE("/delete/:short_url", handler.DeleteShorten)
+	g.GET("/:short_url", h.GetShorten)
+	g.POST("/create", h.CreateShorten)
+	g.DELETE("/delete/:short_url", h.DeleteShorten)
 }

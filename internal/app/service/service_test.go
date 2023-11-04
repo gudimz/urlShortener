@@ -51,12 +51,12 @@ func TestService(t *testing.T) {
 			}
 		)
 
-		shorten, err := service.CreateShorten(context.Background(), inputShorten)
-		generateShorten = shorten.ShortUrl
+		createShorten, err := service.CreateShorten(context.Background(), inputShorten)
+		generateShorten = createShorten.ShortUrl
 		assert.NoError(t, err)
-		assert.Equal(t, shorten.OriginUrl, "https://youtube.com/")
-		assert.NotZero(t, shorten.DateCreated)
-		assert.NotZero(t, shorten.DateUpdated)
+		assert.Equal(t, createShorten.OriginUrl, "https://youtube.com/")
+		assert.NotZero(t, createShorten.DateCreated)
+		assert.NotZero(t, createShorten.DateUpdated)
 	})
 
 	t.Run("Create new short url with custom short url", func(t *testing.T) {
@@ -67,13 +67,13 @@ func TestService(t *testing.T) {
 			}
 		)
 
-		shorten, err := service.CreateShorten(context.Background(), inputShorten)
-		customShorten = shorten.ShortUrl
+		createShorten, err := service.CreateShorten(context.Background(), inputShorten)
+		customShorten = createShorten.ShortUrl
 		assert.NoError(t, err)
-		assert.Equal(t, shorten.ShortUrl, "google")
-		assert.Equal(t, shorten.OriginUrl, "https://google.com/")
-		assert.NotZero(t, shorten.DateCreated)
-		assert.NotZero(t, shorten.DateUpdated)
+		assert.Equal(t, createShorten.ShortUrl, "google")
+		assert.Equal(t, createShorten.OriginUrl, "https://google.com/")
+		assert.NotZero(t, createShorten.DateCreated)
+		assert.NotZero(t, createShorten.DateUpdated)
 	})
 
 	t.Run("Delete short url random and custom", func(t *testing.T) {
