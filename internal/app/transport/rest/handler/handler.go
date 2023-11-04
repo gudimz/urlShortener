@@ -1,4 +1,4 @@
-package rest
+package handler
 
 import (
 	"errors"
@@ -16,13 +16,13 @@ import (
 	"github.com/gudimz/urlShortener/pkg/logging"
 )
 
-type handler struct {
+type Handler struct {
 	logger    *logging.Logger
 	shortener *service.Service
 }
 
-func NewHandler(shortener *service.Service, logger *logging.Logger) *handler {
-	return &handler{
+func New(shortener *service.Service, logger *logging.Logger) *Handler {
+	return &Handler{
 		logger:    logger,
 		shortener: shortener,
 	}
@@ -37,7 +37,7 @@ type response struct {
 	Message string `json:"message,omitempty"`
 }
 
-func (h *handler) CreateShorten(ctx echo.Context) error {
+func (h *Handler) CreateShorten(ctx echo.Context) error {
 	var req request
 	if err := ctx.Bind(&req); err != nil {
 		return err
@@ -77,7 +77,7 @@ func (h *handler) CreateShorten(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, response{Message: message})
 }
 
-func (h *handler) Redirect(ctx echo.Context) error {
+func (h *Handler) Redirect(ctx echo.Context) error {
 	shortUrl := ctx.Param("short_url")
 	h.logger.Infof("redirect for short url %q", shortUrl)
 	originUrl, err := h.shortener.Redirect(ctx.Request().Context(), shortUrl)
@@ -93,7 +93,7 @@ func (h *handler) Redirect(ctx echo.Context) error {
 	return ctx.Redirect(http.StatusMovedPermanently, originUrl)
 }
 
-func (h *handler) GetShorten(ctx echo.Context) error {
+func (h *Handler) GetShorten(ctx echo.Context) error {
 	shortUrl := ctx.Param("short_url")
 	h.logger.Infof("get shorten from db for short url %q", shortUrl)
 	shortenInfo, err := h.shortener.GetShorten(ctx.Request().Context(), shortUrl)
@@ -109,7 +109,7 @@ func (h *handler) GetShorten(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, shortenInfo)
 }
 
-func (h *handler) DeleteShorten(ctx echo.Context) error {
+func (h *Handler) DeleteShorten(ctx echo.Context) error {
 	shortUrl := ctx.Param("short_url")
 	h.logger.Infof("delete shorten from db for short url %q", shortUrl)
 	count, err := h.shortener.DeleteShorten(ctx.Request().Context(), shortUrl)

@@ -7,8 +7,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	"github.com/gudimz/urlShortener/internal/app/service"
-	"github.com/gudimz/urlShortener/internal/app/transport/rest"
-	"github.com/gudimz/urlShortener/internal/app/transport/rest/helper"
+	"github.com/gudimz/urlShortener/internal/app/transport/rest/handler"
 	"github.com/gudimz/urlShortener/pkg/logging"
 )
 
@@ -32,7 +31,7 @@ func New(shorten *service.Service, logger *logging.Logger) *Server {
 
 func (s *Server) NewRouter() {
 	s.e.HideBanner = true
-	s.e.Validator = helper.NewValidator()
+	s.e.Validator = handler.NewValidator()
 
 	s.e.Pre(middleware.RemoveTrailingSlash())
 	s.e.Use(middleware.RequestID())
@@ -45,7 +44,7 @@ func (s *Server) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 }
 
 func (s *Server) RegisterRoutes() {
-	handler := rest.NewHandler(s.shorten, s.logger)
+	handler := handler.New(s.shorten, s.logger)
 
 	s.e.GET("/:short_url", handler.Redirect)
 
