@@ -31,7 +31,7 @@ func TestService(t *testing.T) {
 		generateShorten = ""
 		customShorten   = ""
 	)
-	log := logger.New(&logger.Config{
+	log := logger.New(logger.Config{
 		LogLevel: "debug",
 	})
 	dbPool, err := postgres.NewClient(context.Background(), cfg.Postgres)

@@ -40,7 +40,7 @@ func TestHandler(t *testing.T) {
 		cfg = ds.GetConfig()
 	)
 
-	log := logger.New(&logger.Config{
+	log := logger.New(logger.Config{
 		LogLevel: "debug",
 	})
 
