@@ -3,45 +3,47 @@ package main
 import (
 	"context"
 	"fmt"
-	"github.com/gudimz/urlShortener/internal/config"
-	"github.com/gudimz/urlShortener/internal/db/postgres"
-	"github.com/gudimz/urlShortener/internal/server"
-	"github.com/gudimz/urlShortener/internal/shorten"
-	shorten2 "github.com/gudimz/urlShortener/internal/storage/shorten"
-	"github.com/gudimz/urlShortener/pkg/logging"
 	"net/http"
+
+	"go.uber.org/zap"
+
+	"github.com/gudimz/urlShortener/pkg/logger"
+	"github.com/gudimz/urlShortener/pkg/postgres"
+
+	shortenerRepo "github.com/gudimz/urlShortener/internal/app/repository/psql/shortener"
+	"github.com/gudimz/urlShortener/internal/app/service"
+	"github.com/gudimz/urlShortener/internal/app/transport/rest/server"
+	"github.com/gudimz/urlShortener/internal/pkg/ds"
 )
 
 func main() {
+	var logConfig logger.Config
+	logConfig.ParseConfigFromEnv()
+	log := logger.New(logConfig)
 
-	var (
-		logger = logging.GetLogger()
-		cfg    = config.GetConfig()
-	)
+	log.Info("Trying to read config file")
+	cfg := ds.GetConfig()
 
-	logger.Infoln("Trying to connect to db...")
+	log.Info("Trying to connect to db...")
 	dbPool, err := postgres.NewClient(context.Background(), cfg.Postgres)
 	if err != nil {
-		logger.Fatalln(err)
+		log.Error("Failed to connect to db", zap.Error(err))
 	}
 	defer dbPool.Close()
 
 	var (
-		storage   = shorten2.NewStorage(dbPool, logger)
-		shortener = shorten.NewService(storage)
-		srv       = server.NewServer(shortener, logger)
+		repository = shortenerRepo.NewRepository(dbPool, log)
+		shortener  = service.New(repository)
+		srv        = server.New(shortener, log)
 	)
 
-	run(srv, cfg)
+	run(log, srv, cfg)
 }
 
-func run(srv *server.Server, cfg *config.Config) {
-	var (
-		logger = logging.GetLogger()
-	)
-	logger.Infoln(fmt.Sprintf("Shorten listening port :%s", cfg.Server.Port))
+func run(log *logger.Log, srv *server.Server, cfg *ds.Config) {
+	log.Info("Shorten listening port", zap.String("port", cfg.Server.Port))
 	err := http.ListenAndServe(fmt.Sprintf(":%s", cfg.Server.Port), srv)
 	if err != nil {
-		logger.Fatalf("error running server: %v", err)
+		log.Fatal("error running server", zap.Error(err))
 	}
 }
