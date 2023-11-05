@@ -1,4 +1,4 @@
-package shorten
+package shortener
 
 import (
 	"context"
@@ -11,28 +11,6 @@ import (
 	"github.com/gudimz/urlShortener/internal/pkg/ds"
 	"github.com/gudimz/urlShortener/pkg/logger"
 	"github.com/gudimz/urlShortener/pkg/postgres"
-)
-
-const (
-	queryToCreate = `
-						INSERT INTO shorten_urls
-							(short_url, origin_url, visits, date_created, date_updated)
-						VALUES
-							($1, $2, $3, $4, $5)
-	`
-	queryToGetAll = `
-						SELECT
-							short_url, origin_url, visits, date_created, date_updated
-						FROM
-							shorten_urls
-	`
-	queryToGetByShortUrl    = queryToGetAll + ` WHERE short_url = $1`
-	queryToDeleteByShortUrl = `DELETE FROM shorten_urls WHERE short_url = $1`
-	queryToUpdateByShortUrl = `
-						UPDATE shorten_urls
-							SET visits = visits + 1, date_updated = $1
-						WHERE short_url = $2
-	`
 )
 
 type Repository struct {
@@ -51,30 +29,40 @@ func queryForLogger(q string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(q, "\t", ""), "\n", " ")
 }
 
-func (r *Repository) CreateShorten(ctx context.Context, ms ds.Shorten) error {
+func (r *Repository) CreateShorten(ctx context.Context, ms *ds.Shorten) (*models.DbShorten, error) {
 	op := "CreateShorten"
-	q := queryToCreate
+	q := `INSERT INTO shorten_urls
+			(short_url, origin_url)
+		VALUES
+			($1, $2)
+		RETURNING *;`
+
 	dbm := models.DbShortenFromModel(ms)
 	r.log.Debug(op, zap.String("query", queryForLogger(q)))
 
-	_, err := r.db.Exec(
+	var newShorten models.DbShorten
+	err := r.db.QueryRow(
 		ctx,
 		q,
 		dbm.ShortUrl,
 		dbm.OriginUrl,
-		dbm.Visits,
-		dbm.DateCreated,
-		dbm.DateUpdated)
+	).Scan(&newShorten.ShortUrl, &newShorten.OriginUrl, &newShorten.Visits, &newShorten.DateCreated, &newShorten.DateUpdated)
+
 	if err != nil {
 		r.log.Error(op, zap.Error(err))
-		return err
+		return nil, err
 	}
-	return nil
+
+	return &newShorten, nil
 }
 
-func (r *Repository) GetShorten(ctx context.Context, shortUrl string) (*ds.Shorten, error) {
+func (r *Repository) GetShorten(ctx context.Context, shortUrl string) (*models.DbShorten, error) {
 	op := "GetShorten"
-	q := queryToGetByShortUrl
+	q := `SELECT
+			short_url, origin_url, visits, date_created, date_updated
+		FROM
+			shorten_urls
+		WHERE short_url = $1;`
 	r.log.Debug(op, zap.String("query", queryForLogger(q)))
 
 	var dbShorten models.DbShorten
@@ -88,12 +76,15 @@ func (r *Repository) GetShorten(ctx context.Context, shortUrl string) (*ds.Short
 		r.log.Error(op, zap.Error(err))
 		return nil, err
 	}
-	return models.ModelFromDbShorten(dbShorten), nil
+
+	return &dbShorten, nil
 }
 
 func (r *Repository) DeleteShorten(ctx context.Context, shortUrl string) (int64, error) {
 	op := "DeleteShorten"
-	q := queryToDeleteByShortUrl
+	q := `DELETE FROM
+			shorten_urls
+		WHERE short_url = $1;`
 	r.log.Debug(op, zap.String("query", queryForLogger(q)))
 	res, err := r.db.Exec(ctx, q, shortUrl)
 	if err != nil {
@@ -106,12 +97,20 @@ func (r *Repository) DeleteShorten(ctx context.Context, shortUrl string) (int64,
 
 func (r *Repository) UpdateShorten(ctx context.Context, shortUrl string) error {
 	op := "DeleteShorten"
-	q := queryToUpdateByShortUrl
+	q := `UPDATE 
+			shorten_urls
+		SET
+			visits = visits + 1, date_updated = $1
+		WHERE
+			short_url = $2
+		RETURNING *;`
+
 	r.log.Debug(op, zap.String("query", queryForLogger(q)))
 	_, err := r.db.Exec(ctx, q, time.Now().UTC(), shortUrl)
 	if err != nil {
 		r.log.Error(op, zap.Error(err))
 		return err
 	}
+
 	return nil
 }

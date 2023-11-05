@@ -14,7 +14,7 @@ type DbShorten struct {
 	DateUpdated time.Time `bson:"date_updated"`
 }
 
-func ModelFromDbShorten(dbShorten DbShorten) *ds.Shorten {
+func ModelFromDbShorten(dbShorten *DbShorten) *ds.Shorten {
 	return &ds.Shorten{
 		ShortUrl:    dbShorten.ShortUrl,
 		OriginUrl:   dbShorten.OriginUrl,
@@ -24,12 +24,9 @@ func ModelFromDbShorten(dbShorten DbShorten) *ds.Shorten {
 	}
 }
 
-func DbShortenFromModel(shorten ds.Shorten) DbShorten {
-	return DbShorten{
-		ShortUrl:    shorten.ShortUrl,
-		OriginUrl:   shorten.OriginUrl,
-		Visits:      shorten.Visits,
-		DateCreated: shorten.DateCreated,
-		DateUpdated: shorten.DateUpdated,
+func DbShortenFromModel(shorten *ds.Shorten) *DbShorten {
+	return &DbShorten{
+		ShortUrl:  shorten.ShortUrl,
+		OriginUrl: shorten.OriginUrl,
 	}
 }

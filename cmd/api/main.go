@@ -10,7 +10,7 @@ import (
 	"github.com/gudimz/urlShortener/pkg/logger"
 	"github.com/gudimz/urlShortener/pkg/postgres"
 
-	shortenRepo "github.com/gudimz/urlShortener/internal/app/repository/psql/shorten"
+	shortenerRepo "github.com/gudimz/urlShortener/internal/app/repository/psql/shortener"
 	"github.com/gudimz/urlShortener/internal/app/service"
 	"github.com/gudimz/urlShortener/internal/app/transport/rest/server"
 	"github.com/gudimz/urlShortener/internal/pkg/ds"
@@ -32,8 +32,8 @@ func main() {
 	defer dbPool.Close()
 
 	var (
-		repository = shortenRepo.NewRepository(dbPool, log)
-		shortener  = service.NewService(repository)
+		repository = shortenerRepo.NewRepository(dbPool, log)
+		shortener  = service.New(repository)
 		srv        = server.New(shortener, log)
 	)
 
@@ -41,7 +41,7 @@ func main() {
 }
 
 func run(log *logger.Log, srv *server.Server, cfg *ds.Config) {
-	log.Info(fmt.Sprintf("Shorten listening port :%s", cfg.Server.Port))
+	log.Info("Shorten listening port", zap.String("port", cfg.Server.Port))
 	err := http.ListenAndServe(fmt.Sprintf(":%s", cfg.Server.Port), srv)
 	if err != nil {
 		log.Fatal("error running server", zap.Error(err))

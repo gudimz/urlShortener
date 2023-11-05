@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/labstack/echo/v4"
 	"github.com/samber/mo"
 	"go.uber.org/zap"
@@ -35,7 +34,7 @@ type request struct {
 }
 
 type response struct {
-	Message string `json:"message,omitempty"`
+	Shortener *ds.Shorten `json:"shortener,omitempty"`
 }
 
 func (h *Handler) CreateShorten(ctx echo.Context) error {
@@ -60,22 +59,15 @@ func (h *Handler) CreateShorten(ctx echo.Context) error {
 	h.log.Info("create shorten for short url", zap.String("shortenUrl", input.ShortenUrl.OrEmpty()))
 	shortener, err := h.shortener.CreateShorten(ctx.Request().Context(), input)
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) {
-			if strings.Compare(pgErr.Code, "23505") == 0 {
-				return echo.NewHTTPError(http.StatusConflict, "short url already exist")
-			}
+		if err == ds.ErrShortURLAlreadyExists {
+			return echo.NewHTTPError(http.StatusConflict, "short url already exist")
 		}
-		h.log.Error("error creating shorten", zap.Error(err))
+
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("can't create short url \"%v\"", input.ShortenUrl))
 	}
-	message := fmt.Sprintf("%v:%v/%v",
-		ds.GetConfig().Server.BaseUrl,
-		ds.GetConfig().Server.Port,
-		shortener.ShortUrl,
-	)
-	return ctx.JSON(http.StatusOK, response{Message: message})
+
+	return ctx.JSON(http.StatusOK, response{Shortener: shortener})
 }
 
 func (h *Handler) Redirect(ctx echo.Context) error {
@@ -101,7 +93,7 @@ func (h *Handler) GetShorten(ctx echo.Context) error {
 	h.log.Info("get shorten from db for short url")
 	shortenInfo, err := h.shortener.GetShorten(ctx.Request().Context(), shortUrl)
 	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
+		if err == ds.ErrShortUrlNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("short url %q not found", shortUrl))
 		}
 
@@ -116,14 +108,15 @@ func (h *Handler) DeleteShorten(ctx echo.Context) error {
 	shortUrl := ctx.Param("short_url")
 	h.log.With(zap.String("shortUrl", shortUrl))
 	h.log.Info("delete shorten from db for short url")
-	count, err := h.shortener.DeleteShorten(ctx.Request().Context(), shortUrl)
-	if count == 0 {
-		return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("short url %q not found", shortUrl))
-	}
+	err := h.shortener.DeleteShorten(ctx.Request().Context(), shortUrl)
 	if err != nil {
+		if err == ds.ErrShortUrlNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, fmt.Sprintf("short url %q not found", shortUrl))
+		}
 		h.log.Error("error deleting GetShorten for short url", zap.Error(err))
 		return echo.NewHTTPError(http.StatusInternalServerError,
 			fmt.Sprintf("failed to delete shorten for  %q", shortUrl))
 	}
+
 	return ctx.NoContent(http.StatusNoContent)
 }

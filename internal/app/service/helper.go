@@ -1,15 +1,13 @@
 package service
 
-import (
-	"strings"
-)
+import "strings"
 
 const (
 	dictionary    = "abcdefghjkmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789"
 	lenDictionary = uint32(len(dictionary))
 )
 
-func GenerateShortenUrl(id uint32) string {
+func generateShortenURL(id uint32) string {
 	var (
 		builder strings.Builder
 		nums    []uint32
