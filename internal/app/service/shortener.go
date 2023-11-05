@@ -15,12 +15,12 @@ import (
 func (s *Service) CreateShorten(ctx context.Context, input ds.InputShorten) (*ds.Shorten, error) {
 	var (
 		id       = uuid.New().ID()
-		shortUrl = input.ShortenUrl.OrElse(generateShortenURL(id))
+		shortURL = input.ShortenURL.OrElse(generateShortenURL(id))
 	)
 
 	shorten, err := s.repository.CreateShorten(ctx, &ds.Shorten{
-		ShortUrl:  shortUrl,
-		OriginUrl: input.OriginUrl,
+		ShortURL:  shortURL,
+		OriginURL: input.OriginURL,
 	})
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -33,46 +33,46 @@ func (s *Service) CreateShorten(ctx context.Context, input ds.InputShorten) (*ds
 		return nil, err
 	}
 
-	return models.ModelFromDbShorten(shorten), nil
+	return models.ModelFromDBShorten(shorten), nil
 }
 
-func (s *Service) GetShorten(ctx context.Context, shortUrl string) (*ds.Shorten, error) {
-	shorten, err := s.repository.GetShorten(ctx, shortUrl)
+func (s *Service) GetShorten(ctx context.Context, shortURL string) (*ds.Shorten, error) {
+	shorten, err := s.repository.GetShorten(ctx, shortURL)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil, ds.ErrShortUrlNotFound
+			return nil, ds.ErrShortURLNotFound
 		}
 
 		return nil, err
 	}
 
-	return models.ModelFromDbShorten(shorten), nil
+	return models.ModelFromDBShorten(shorten), nil
 }
 
-func (s *Service) Redirect(ctx context.Context, shortUrl string) (string, error) {
-	dbShorten, err := s.repository.GetShorten(ctx, shortUrl)
+func (s *Service) Redirect(ctx context.Context, shortURL string) (string, error) {
+	dbShorten, err := s.repository.GetShorten(ctx, shortURL)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return "", ds.ErrShortUrlNotFound
+			return "", ds.ErrShortURLNotFound
 		}
 
 		return "", err
 	}
 
-	shorten := models.ModelFromDbShorten(dbShorten)
+	shorten := models.ModelFromDBShorten(dbShorten)
 
-	err = s.repository.UpdateShorten(ctx, shortUrl)
+	err = s.repository.UpdateShorten(ctx, shortURL)
 	if err != nil {
 		return "", err
 	}
 
-	return shorten.OriginUrl, nil
+	return shorten.OriginURL, nil
 }
 
-func (s *Service) DeleteShorten(ctx context.Context, shortUrl string) error {
-	count, err := s.repository.DeleteShorten(ctx, shortUrl)
+func (s *Service) DeleteShorten(ctx context.Context, shortURL string) error {
+	count, err := s.repository.DeleteShorten(ctx, shortURL)
 	if err == nil && count == 0 {
-		return ds.ErrShortUrlNotFound
+		return ds.ErrShortURLNotFound
 	}
 	return err
 }

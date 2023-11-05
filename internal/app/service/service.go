@@ -9,8 +9,8 @@ import (
 
 //go:generate mockgen -source=service.go -destination=service_mock.go -package=service
 type Repository interface {
-	CreateShorten(context.Context, *ds.Shorten) (*models.DbShorten, error)
-	GetShorten(context.Context, string) (*models.DbShorten, error)
+	CreateShorten(context.Context, *ds.Shorten) (*models.DBShorten, error)
+	GetShorten(context.Context, string) (*models.DBShorten, error)
 	DeleteShorten(context.Context, string) (int64, error)
 	UpdateShorten(context.Context, string) error
 }

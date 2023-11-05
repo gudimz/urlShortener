@@ -26,7 +26,6 @@ func New(shorten *service.Service, log *logger.Log) *Server {
 	srv.NewRouter()
 
 	return srv
-
 }
 
 func (s *Server) NewRouter() {

@@ -10,7 +10,7 @@ import (
 type ServerConfig struct {
 	Host    string `yaml:"host" env-default:"0.0.0.0"`
 	Port    string `yaml:"port" env-default:"8080"`
-	BaseUrl string `yaml:"base_url" env-default:"http://localhost"`
+	BaseURL string `yaml:"base_url" env-default:"http://localhost"`
 }
 
 type PostgresConfig struct {
@@ -18,7 +18,7 @@ type PostgresConfig struct {
 	Password string `yaml:"password" env-default:"postgres"`
 	Host     string `yaml:"host" env-default:"localhost"`
 	Port     string `yaml:"port" env-default:"5432"`
-	DbName   string `yaml:"db_name" env-default:"url_shorten"`
+	DBName   string `yaml:"db_name" env-default:"url_shorten"`
 }
 
 type Config struct {

@@ -47,17 +47,17 @@ func TestService_CreateShorten(t *testing.T) {
 
 	errCommon := errors.New("some error")
 	now := time.Now().UTC()
-	expectedDbShorten := &models.DbShorten{
-		ShortUrl:    testShortURL,
-		OriginUrl:   testURL,
+	expectedDBShorten := &models.DBShorten{
+		ShortURL:    testShortURL,
+		OriginURL:   testURL,
 		Visits:      0,
 		DateCreated: now,
 		DateUpdated: now,
 	}
 
 	expectedShorten := &ds.Shorten{
-		ShortUrl:    testShortURL,
-		OriginUrl:   testURL,
+		ShortURL:    testShortURL,
+		OriginURL:   testURL,
 		Visits:      0,
 		DateCreated: now,
 		DateUpdated: now,
@@ -75,11 +75,11 @@ func TestService_CreateShorten(t *testing.T) {
 			mock: func() {
 				s.mockRepo.EXPECT().
 					CreateShorten(gomock.Any(), gomock.Any()).
-					Return(expectedDbShorten, nil).Times(1)
+					Return(expectedDBShorten, nil).Times(1)
 			},
 			input: ds.InputShorten{
-				ShortenUrl: mo.Some(testShortURL),
-				OriginUrl:  testURL,
+				ShortenURL: mo.Some(testShortURL),
+				OriginURL:  testURL,
 			},
 			want:          expectedShorten,
 			expectedError: nil,
@@ -89,11 +89,11 @@ func TestService_CreateShorten(t *testing.T) {
 			mock: func() {
 				s.mockRepo.EXPECT().
 					CreateShorten(gomock.Any(), gomock.Any()).
-					Return(expectedDbShorten, nil).Times(1)
+					Return(expectedDBShorten, nil).Times(1)
 			},
 			input: ds.InputShorten{
-				ShortenUrl: mo.None[string](),
-				OriginUrl:  testURL,
+				ShortenURL: mo.None[string](),
+				OriginURL:  testURL,
 			},
 			want:          expectedShorten,
 			expectedError: nil,
@@ -106,8 +106,8 @@ func TestService_CreateShorten(t *testing.T) {
 					Return(nil, &pgconn.PgError{Code: "23505"}).Times(1)
 			},
 			input: ds.InputShorten{
-				ShortenUrl: mo.None[string](),
-				OriginUrl:  testURL,
+				ShortenURL: mo.None[string](),
+				OriginURL:  testURL,
 			},
 			want:          nil,
 			expectedError: ds.ErrShortURLAlreadyExists,
@@ -120,8 +120,8 @@ func TestService_CreateShorten(t *testing.T) {
 					Return(nil, errCommon)
 			},
 			input: ds.InputShorten{
-				ShortenUrl: mo.None[string](),
-				OriginUrl:  testURL,
+				ShortenURL: mo.None[string](),
+				OriginURL:  testURL,
 			},
 			want:          nil,
 			expectedError: errCommon,
@@ -149,17 +149,17 @@ func TestService_GetShorten(t *testing.T) {
 
 	errCommon := errors.New("some error")
 	now := time.Now().UTC()
-	expectedDbShorten := &models.DbShorten{
-		ShortUrl:    testShortURL,
-		OriginUrl:   testURL,
+	expectedDBShorten := &models.DBShorten{
+		ShortURL:    testShortURL,
+		OriginURL:   testURL,
 		Visits:      0,
 		DateCreated: now,
 		DateUpdated: now,
 	}
 
 	expectedShorten := &ds.Shorten{
-		ShortUrl:    testShortURL,
-		OriginUrl:   testURL,
+		ShortURL:    testShortURL,
+		OriginURL:   testURL,
 		Visits:      0,
 		DateCreated: now,
 		DateUpdated: now,
@@ -177,7 +177,7 @@ func TestService_GetShorten(t *testing.T) {
 			mock: func() {
 				s.mockRepo.EXPECT().
 					GetShorten(gomock.Any(), gomock.Any()).
-					Return(expectedDbShorten, nil).Times(1)
+					Return(expectedDBShorten, nil).Times(1)
 			},
 			input:         testShortURL,
 			want:          expectedShorten,
@@ -192,7 +192,7 @@ func TestService_GetShorten(t *testing.T) {
 			},
 			input:         testShortURL,
 			want:          nil,
-			expectedError: ds.ErrShortUrlNotFound,
+			expectedError: ds.ErrShortURLNotFound,
 		},
 		{
 			name: "failed: common error",
@@ -228,9 +228,9 @@ func TestService_Redirect(t *testing.T) {
 
 	errCommon := errors.New("some error")
 	now := time.Now().UTC()
-	expectedDbShorten := &models.DbShorten{
-		ShortUrl:    testShortURL,
-		OriginUrl:   testURL,
+	expectedDBShorten := &models.DBShorten{
+		ShortURL:    testShortURL,
+		OriginURL:   testURL,
 		Visits:      0,
 		DateCreated: now,
 		DateUpdated: now,
@@ -248,7 +248,7 @@ func TestService_Redirect(t *testing.T) {
 			mock: func() {
 				s.mockRepo.EXPECT().
 					GetShorten(gomock.Any(), gomock.Any()).
-					Return(expectedDbShorten, nil).Times(1)
+					Return(expectedDBShorten, nil).Times(1)
 				s.mockRepo.EXPECT().
 					UpdateShorten(gomock.Any(), gomock.Any()).
 					Return(nil).Times(1)
@@ -266,7 +266,7 @@ func TestService_Redirect(t *testing.T) {
 			},
 			input:         testShortURL,
 			want:          "",
-			expectedError: ds.ErrShortUrlNotFound,
+			expectedError: ds.ErrShortURLNotFound,
 		},
 		{
 			name: "failed: GetShorten common error",
@@ -284,7 +284,7 @@ func TestService_Redirect(t *testing.T) {
 			mock: func() {
 				s.mockRepo.EXPECT().
 					GetShorten(gomock.Any(), gomock.Any()).
-					Return(expectedDbShorten, nil).Times(1)
+					Return(expectedDBShorten, nil).Times(1)
 				s.mockRepo.EXPECT().
 					UpdateShorten(gomock.Any(), gomock.Any()).
 					Return(errCommon).Times(1)
@@ -340,7 +340,7 @@ func TestService_DeleteShorten(t *testing.T) {
 					Return(int64(0), nil).Times(1)
 			},
 			input:         testShortURL,
-			expectedError: ds.ErrShortUrlNotFound,
+			expectedError: ds.ErrShortURLNotFound,
 		},
 		{
 			name: "failed: common error",

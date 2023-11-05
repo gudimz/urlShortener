@@ -7,14 +7,14 @@ import (
 )
 
 type Shorten struct {
-	ShortUrl    string    `json:"short_url"`
-	OriginUrl   string    `json:"origin_url"`
+	ShortURL    string    `json:"short_url"`
+	OriginURL   string    `json:"origin_url"`
 	Visits      int64     `json:"visits"`
 	DateCreated time.Time `json:"date_created"`
 	DateUpdated time.Time `json:"date_updated"`
 }
 
 type InputShorten struct {
-	ShortenUrl mo.Option[string]
-	OriginUrl  string
+	ShortenURL mo.Option[string]
+	OriginURL  string
 }

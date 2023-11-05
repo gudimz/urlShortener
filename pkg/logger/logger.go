@@ -31,7 +31,7 @@ func New(cfg Config) *Log {
 	}
 
 	zap.ReplaceGlobals(log)
-	defer log.Sync()
+	defer log.Sync() //nolint:errcheck,nolintlint
 
 	return &Log{log}
 }

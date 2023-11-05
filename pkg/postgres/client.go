@@ -3,6 +3,7 @@ package postgres
 import (
 	"context"
 	"fmt"
+	"net"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -19,12 +20,12 @@ type Client interface {
 }
 
 func NewClient(ctx context.Context, pc ds.PostgresConfig) (*pgxpool.Pool, error) {
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+	hostPort := net.JoinHostPort(pc.Host, pc.Port)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s",
 		pc.Username,
 		pc.Password,
-		pc.Host,
-		pc.Port,
-		pc.DbName)
+		hostPort,
+		pc.DBName)
 	pool, err := pgxpool.New(ctx, dsn)
 	if err != nil {
 		return nil, err

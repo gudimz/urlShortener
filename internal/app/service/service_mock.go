@@ -37,10 +37,10 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // CreateShorten mocks base method.
-func (m *MockRepository) CreateShorten(arg0 context.Context, arg1 *ds.Shorten) (*models.DbShorten, error) {
+func (m *MockRepository) CreateShorten(arg0 context.Context, arg1 *ds.Shorten) (*models.DBShorten, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateShorten", arg0, arg1)
-	ret0, _ := ret[0].(*models.DbShorten)
+	ret0, _ := ret[0].(*models.DBShorten)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -67,10 +67,10 @@ func (mr *MockRepositoryMockRecorder) DeleteShorten(arg0, arg1 interface{}) *gom
 }
 
 // GetShorten mocks base method.
-func (m *MockRepository) GetShorten(arg0 context.Context, arg1 string) (*models.DbShorten, error) {
+func (m *MockRepository) GetShorten(arg0 context.Context, arg1 string) (*models.DBShorten, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetShorten", arg0, arg1)
-	ret0, _ := ret[0].(*models.DbShorten)
+	ret0, _ := ret[0].(*models.DBShorten)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
