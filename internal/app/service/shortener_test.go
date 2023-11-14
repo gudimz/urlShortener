@@ -129,18 +129,21 @@ func TestService_CreateShorten(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		if tt.mock != nil {
-			tt.mock()
-		}
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mock != nil {
+				tt.mock()
+			}
 
-		got, err := s.service.CreateShorten(context.Background(), tt.input)
-		if tt.expectedError != nil {
-			require.Equal(t, tt.expectedError, err)
-			assert.Equal(t, tt.want, got)
-		} else {
-			require.NoError(t, err)
-			assert.Equal(t, tt.want, got)
-		}
+			got, err := s.service.CreateShorten(context.Background(), tt.input)
+			if tt.expectedError != nil {
+				require.Equal(t, tt.expectedError, err)
+				assert.Equal(t, tt.want, got)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tt.want, got)
+			}
+		})
 	}
 }
 
@@ -208,18 +211,21 @@ func TestService_GetShorten(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		if tt.mock != nil {
-			tt.mock()
-		}
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mock != nil {
+				tt.mock()
+			}
 
-		got, err := s.service.GetShorten(context.Background(), tt.input)
-		if tt.expectedError != nil {
-			require.Equal(t, tt.expectedError, err)
-			assert.Equal(t, tt.want, got)
-		} else {
-			require.NoError(t, err)
-			assert.Equal(t, tt.want, got)
-		}
+			got, err := s.service.GetShorten(context.Background(), tt.input)
+			if tt.expectedError != nil {
+				require.Equal(t, tt.expectedError, err)
+				assert.Equal(t, tt.want, got)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tt.want, got)
+			}
+		})
 	}
 }
 
@@ -296,18 +302,21 @@ func TestService_Redirect(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		if tt.mock != nil {
-			tt.mock()
-		}
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mock != nil {
+				tt.mock()
+			}
 
-		got, err := s.service.Redirect(context.Background(), tt.input)
-		if tt.expectedError != nil {
-			require.Equal(t, tt.expectedError, err)
-			assert.Equal(t, tt.want, got)
-		} else {
-			require.NoError(t, err)
-			assert.Equal(t, tt.want, got)
-		}
+			got, err := s.service.Redirect(context.Background(), tt.input)
+			if tt.expectedError != nil {
+				require.Equal(t, tt.expectedError, err)
+				assert.Equal(t, tt.want, got)
+			} else {
+				require.NoError(t, err)
+				assert.Equal(t, tt.want, got)
+			}
+		})
 	}
 }
 
@@ -355,15 +364,18 @@ func TestService_DeleteShorten(t *testing.T) {
 	}
 
 	for _, tt := range testCases {
-		if tt.mock != nil {
-			tt.mock()
-		}
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			if tt.mock != nil {
+				tt.mock()
+			}
 
-		err := s.service.DeleteShorten(context.Background(), tt.input)
-		if tt.expectedError != nil {
-			require.Equal(t, tt.expectedError, err)
-		} else {
-			require.NoError(t, err)
-		}
+			err := s.service.DeleteShorten(context.Background(), tt.input)
+			if tt.expectedError != nil {
+				require.Equal(t, tt.expectedError, err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
 	}
 }
