@@ -41,6 +41,9 @@
         - name: install goveralls
           run: go install github.com/mattn/goveralls@latest
 
+        - name: test
+          run: make test
+
         - name: send coverage
           run: goveralls -coverprofile=$GITHUB_WORKSPACE/.coverage.out -service=github
           env:
