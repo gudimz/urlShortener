@@ -1,5 +1,6 @@
 # Short url generator
 
+[![Coverage Status](https://coveralls.io/repos/github/gudimz/urlShortener/badge.svg?branch=main)](https://coveralls.io/github/gudimz/urlShortener?branch=main)
 ![License](https://img.shields.io/github/license/gudimz/urlShortener)
 ![Go version](https://img.shields.io/github/go-mod/go-version/gudimz/urlshortener)
 ![Last commit](https://img.shields.io/github/last-commit/gudimz/urlshortener)
