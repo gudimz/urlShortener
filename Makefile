@@ -32,16 +32,16 @@ mock:
 
 .PHONY: test
 test:
-	@go test -v --timeout=1m --covermode=count --coverprofile=.coverage_tmp.out ./...
-	@cat .coverage_tmp.out | grep -v "_mock.go" > .coverage.out
+	@go test -v --timeout=1m --covermode=count --coverprofile=coverage_tmp.out ./...
+	@cat coverage_tmp.out | grep -v "_mock.go" > coverage.out
 
 .PHONY: covearge-html
 coverage-html:
-	@go tool cover --html=.coverage.out
+	@go tool cover --html=coverage.out
 
 .PHONY: covearge-func
 coverage-func:
-	@go tool cover --func=.coverage.out
+	@go tool cover --func=coverage.out
 
 .PHONY: docker
 docker:
