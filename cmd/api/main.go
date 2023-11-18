@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/http"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -42,7 +43,17 @@ func main() {
 
 func run(log *logger.Log, srv *server.Server, cfg *ds.Config) {
 	log.Info("Shorten listening port", zap.String("port", cfg.Server.Port))
-	err := http.ListenAndServe(fmt.Sprintf(":%s", cfg.Server.Port), srv)
+
+	//TODO: refactoring + graceful shutdown
+	server := &http.Server{
+		Addr:         fmt.Sprintf(":%s", cfg.Server.Port),
+		Handler:      srv,
+		ReadTimeout:  10 * time.Second,
+		WriteTimeout: 10 * time.Second,
+		IdleTimeout:  120 * time.Second,
+	}
+
+	err := server.ListenAndServe()
 	if err != nil {
 		log.Fatal("error running server", zap.Error(err))
 	}
