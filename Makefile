@@ -16,11 +16,11 @@ GOLANGCI_LINT_BIN = $(PROJECT_BIN)/golangci-lint
 
 .PHONY: lint
 lint: .install-linter
-	$(GOLANGCI_LINT_BIN) run ./... --config=./configs/.golangci.yml
+	$(GOLANGCI_LINT_BIN) run ./... --config=./configs/golangci.yml
 
 .PHONY: lint-fast
 lint-fast: .install-linter
-	$(GOLANGCI_LINT_BIN) run ./... --fast --config=./configs/.golangci.yml
+	$(GOLANGCI_LINT_BIN) run ./... --fast --config=./configs/golangci.yml
 
 .PHONY: build
 build:
