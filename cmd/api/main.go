@@ -17,6 +17,12 @@ import (
 	"github.com/gudimz/urlShortener/internal/pkg/ds"
 )
 
+const (
+	readTimeout  = 10 * time.Second
+	writeTimeout = 10 * time.Second
+	idleTimeout  = 120 * time.Second
+)
+
 func main() {
 	var logConfig logger.Config
 	logConfig.ParseConfigFromEnv()
@@ -48,9 +54,9 @@ func run(log *logger.Log, srv *server.Server, cfg *ds.Config) {
 	server := &http.Server{
 		Addr:         fmt.Sprintf(":%s", cfg.Server.Port),
 		Handler:      srv,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  120 * time.Second,
+		ReadTimeout:  readTimeout,
+		WriteTimeout: writeTimeout,
+		IdleTimeout:  idleTimeout,
 	}
 
 	err := server.ListenAndServe()
